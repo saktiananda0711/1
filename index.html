@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width,initial-scale=1" name="viewport"/>
+<title>ATOMIC</title>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+        :root {
+            --bg: #071029;           /* solid dark background */
+            --panel: #0c1a2b;
+            --muted: #9fb7d9;
+            --accent: #ffd166;
+            --neon: #7b61ff;
+            --not: #ff7b6b;
+            --progress: #4fc3f7;
+            --complete: #6ee7b7;
+            --total: #a78bfa;
+            --total-new: #67554C;    /* New blue for total missions */
+            --goal-new: #FFD700;     /* New pink for monthly goal */
+            --add-new: #1f51ff;      /* New green for add mission */
+            --prospect: #4fc3f7;     /* Warna untuk status Prospect */
+            --hot: #ff7b6b;          /* Warna untuk status Hot */
+            --deal: #6ee7b7;         /* Warna untuk status Deal */
+        }
+        
+        * {
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #e6f3ff;
+        }
+        
+        html, body {
+            height: 100%;
+            margin: 0;
+            background: var(--bg);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+        
+        .wrap {
+            max-width: 980px;
+            margin: 12px auto;
+            padding: 14px;
+        }
+
+        header.header {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        header.header.header-login {
+            grid-template-columns: 1fr;
+            justify-items: center;
+        }
+        
+        .logo-container {
+            max-width: 200px;
+            height: auto;
+        }
+
+        .header-login .logo-container {
+            max-width: 180px;
+        }
+        
+        .logo-container img {
+            width: 100%;
+            height: auto;
+            display: block;
+            filter: contrast(1.1) brightness(1.0);
+            border-radius: 8px;
+        }
+        
+        .profile {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            padding: 8px 12px;
+            background: var(--panel);
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            justify-content: flex-end;
+            margin-left: auto;
+        }
+        
+        .avatar {
+            width: 38px;
+            height: 38px;
+            border-radius: 50%;
+            background: #0b2a3a;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            border: 3px solid rgba(255, 255, 255, 0.03);
+        }
+        
+        .avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+        
+        .avatar-initial {
+            font-weight: 800;
+            font-size: 16px;
+            color: var(--accent);
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+        }
+        
+        .profile-info .name {
+            font-weight: 800;
+            font-size: 12px;
+            text-transform: uppercase;
+        }
+        
+        .profile-info .role {
+            font-size: 10px;
+            color: var(--muted);
+        }
+
+        .profile .icon {
+            font-size: 18px;
+            color: var(--muted);
+            cursor: pointer;
+            position: relative;
+            transition: all 0.2s ease;
+            margin-left: 8px; 
+        }
+        
+        .profile .icon:hover {
+            color: #fff;
+        }
+        
+        .profile .badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: var(--not);
+            color: #041225;
+            padding: 2px 5px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 9px;
+            min-width: 18px;
+            text-align: center;
+        }
+
+        .login-card {
+            max-width: 420px;
+            margin: 30px auto;
+            padding: 20px;
+            border-radius: 12px;
+            background: var(--panel);
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        }
+        
+        .login-card h2 {
+            margin: 0 0 15px 0;
+            font-size: 20px;
+            text-align: center;
+            color: var(--accent);
+        }
+        
+        .login-card input, .login-card select, .login-card button {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e6f3ff;
+            margin-bottom: 12px;
+            font-size: 14px;
+        }
+        
+        .login-card input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .login-card select, .modal select {
+            color: #e6f3ff !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            appearance: menulist;
+            -webkit-appearance: menulist;
+            -moz-appearance: menulist;
+        }
+        
+        .login-card select option, .modal select option {
+            background-color: var(--panel);
+            color: #e6f3ff;
+            padding: 10px;
+        }
+        
+        .login-card button {
+            margin-top: 10px;
+            background: var(--accent);
+            color: #041225;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .login-card button:hover {
+            background: #ffc44d;
+            transform: translateY(-2px);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .stat {
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            position: relative;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .stat .left {
+            display: flex;
+            flex-direction: column;
+            flex: 1;
+        }
+        
+        .stat small {
+            font-size: 11px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        
+        .bubble {
+            min-width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 900;
+            color: #041225;
+            position: relative;
+            font-size: 16px;
+        }
+        
+        .bubble.total { background: var(--total-new); }
+        .bubble.not { background: var(--not); }
+        .bubble.progress { background: var(--progress); }
+        .bubble.complete { background: var(--complete); }
+        
+        .stat-badge {
+            position: absolute;
+            top: -6px;
+            right: -6px;
+            background: #fff;
+            color: #041225;
+            padding: 3px 6px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 11px;
+            min-width: 20px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        
+        .stat-badge.total-badge { background: var(--total-new); color: #041225; }
+        .stat-badge.not-badge { background: var(--not); color: #041225; }
+        .stat-badge.progress-badge { background: var(--progress); color: #041225; }
+        .stat-badge.complete-badge { background: var(--complete); color: #041225; }
+
+        .goal {
+            margin-top: 15px;
+            padding: 10px 12px;
+            border-radius: 10px;
+            background: var(--panel);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .goal .left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .goal .icon {
+            width: 35px;
+            height: 35px;
+            border-radius: 8px;
+            background: var(--goal-new);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #041225;
+            font-weight: 800;
+            font-size: 14px;
+            flex-shrink: 0;
+        }
+        
+        .goal .text {
+            display: flex;
+            flex-direction: column;
+            min-width: 0;
+            flex: 1;
+        }
+        
+        .goal .text small {
+            font-size: 10px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        
+        .goal .text h4 {
+            margin: 2px 0 0 0;
+            font-size: 12px;
+            text-transform: uppercase;
+            color: #fff;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .goal .actions {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-shrink: 0;
+        }
+        
+        .goal .actions input {
+            padding: 6px 8px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: transparent;
+            color: inherit;
+            width: 00px;
+            min-width: 450px;
+            font-size: 12px;
+        }
+        
+        .goal .actions button {
+            padding: 6px;
+            font-size: 12px;
+        }
+
+        .panels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-top: 15px;
+        }
+        
+        .panel {
+            background: var(--panel);
+            padding: 10px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .panel .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .panel h5 {
+            margin: 0;
+            font-size: 13px;
+            color: #fff;
+            font-weight: 700;
+        }
+        
+        .panel .count {
+            font-weight: 800;
+            color: var(--muted);
+            background: rgba(255, 255, 255, 0.05);
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 10px;
+        }
+        
+        .panel .body {
+            margin-top: 10px;
+            max-height: 300px;
+            overflow: auto;
+        }
+        
+        .task {
+            padding: 8px;
+            border-radius: 6px;
+            margin-bottom: 6px;
+            background: rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+            border-left: 3px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .task:hover {
+            background: rgba(255, 255, 255, 0.05);
+        }
+        
+        .task.not-started { border-left-color: var(--not); }
+        .task.in-progress { border-left-color: var(--progress); }
+        .task.completed { border-left-color: var(--complete); }
+        
+        .task .title {
+            font-weight: 800;
+            text-transform: uppercase;
+            color: #fff;
+            font-size: 12px;
+            margin-bottom: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .task .notes {
+            font-size: 11px;
+            color: var(--muted);
+            margin-top: 3px;
+            text-transform: uppercase;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .task .meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 6px;
+        }
+        
+        .pill {
+            padding: 4px 6px;
+            border-radius: 999px;
+            font-weight: 800;
+            font-size: 9px;
+            color: #fff;
+        }
+        
+        .pill.not { background: rgba(255, 123, 107, 0.12); color: var(--not); }
+        .pill.progress { background: rgba(79, 195, 247, 0.12); color: var(--progress); }
+        .pill.complete { background: rgba(110, 231, 183, 0.12); color: var(--complete); }
+        
+        .task-actions {
+            display: flex;
+            gap: 3px;
+        }
+        
+        .task-actions button {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 4px;
+            border-radius: 5px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 11px;
+        }
+        
+        .task-actions button:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+
+        footer.control {
+            position: fixed;
+            left: 50%;
+            transform: translateX(-50%);
+            bottom: 15px;
+            background: var(--panel);
+            padding: 8px 16px;
+            border-radius: 999px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            z-index: 200;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        }
+        
+        .control .add {
+            width: 50px;
+            height: 50px;
+            border-radius: 999px;
+            background: var(--add-new);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #041225;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 12px rgba(31, 81, 255, 0.3);
+        }
+        
+        .control .add:hover {
+            background: #1a43e0;
+            transform: scale(1.05);
+        }
+
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 400;
+            padding: 10px;
+        }
+        
+        .modal {
+            width: 100%;
+            max-width: 500px;
+            background: var(--panel);
+            padding: 15px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+        }
+        
+        .modal .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        
+        .modal .header h4 {
+            color: #fff;
+            margin: 0;
+            font-size: 16px;
+        }
+        
+        .modal .body {
+            margin-top: 12px;
+            max-height: 70vh;
+            overflow-y: auto;
+        }
+        
+        .close-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.03);
+            padding: 5px;
+            border-radius: 6px;
+            color: var(--muted);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 12px;
+        }
+        
+        .close-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        
+        .modal label {
+            display: block;
+            margin-bottom: 5px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 13px;
+        }
+        
+        .modal input, .modal select, .modal textarea {
+            width: 100%;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+            margin-bottom: 12px;
+            font-size: 13px;
+        }
+        
+        .modal input::placeholder {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        
+        .modal select {
+            color: #e6f3ff !important;
+            background-color: rgba(255, 255, 255, 0.05) !important;
+            appearance: menulist;
+            -webkit-appearance: menulist;
+            -moz-appearance: menulist;
+        }
+        
+        .modal select option {
+            background-color: var(--panel);
+            color: #e6f3ff;
+            padding: 10px;
+        }
+        
+        .modal .form-row {
+            display: flex;
+            gap: 10px;
+        }
+        
+        .modal .form-row > div {
+            flex: 1;
+        }
+        
+        .modal .form-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        
+        .modal .form-actions button {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-size: 13px;
+        }
+        
+        .modal .form-actions .cancel-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--muted);
+        }
+        
+        .modal .form-actions .cancel-btn:hover {
+            background: rgba(255, 255, 255, 0.05);
+            color: #fff;
+        }
+        
+        .modal .form-actions .save-btn {
+            background: var(--neon);
+            color: #041225;
+        }
+        
+        .modal .form-actions .save-btn:hover {
+            background: #6a4fff;
+        }
+
+        #recapModal .modal {
+            max-width: 550px;
+        }
+        
+        .chart-container {
+            position: relative;
+            height: 220px;
+            width: 100%;
+        }
+
+        .notification {
+            position: fixed;
+            top: 15px;
+            right: 15px;
+            background: var(--not);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            max-width: 300px;
+            animation: slideIn 0.3s ease;
+        }
+        
+        .notification.success {
+            background: var(--complete);
+        }
+        
+        .notification.warning {
+            background: var(--progress);
+        }
+        
+        .notification.info {
+            background: var(--neon);
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification-close {
+            background: transparent;
+            border: none;
+            color: white;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .tabs {
+            display: flex;
+            background: var(--panel);
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 12px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 13px;
+            transition: all 0.2s ease;
+            color: var(--muted);
+        }
+        
+        .tab.active {
+            color: #fff;
+            background: rgba(123, 97, 255, 0.2);
+            border-bottom: 2px solid var(--neon);
+        }
+        
+        .leads-container {
+            display: none;
+        }
+        
+        .leads-filter {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+        
+        .leads-filter input,
+        .leads-filter select {
+            padding: 8px 12px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.04);
+            background: rgba(255, 255, 255, 0.05);
+            color: #e6f3ff;
+            font-size: 13px;
+        }
+        
+        .leads-filter input {
+            flex: 1;
+            min-width: 200px;
+        }
+        
+        .leads-filter select {
+            width: 150px;
+        }
+        
+        .leads-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .lead-stat {
+            padding: 12px;
+            border-radius: 10px;
+            background: var(--panel);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+        }
+        
+        .lead-stat.prospect { border-bottom: 3px solid var(--prospect); }
+        .lead-stat.hot { border-bottom: 3px solid var(--hot); }
+        .lead-stat.deal { border-bottom: 3px solid var(--deal); }
+        
+        .lead-stat .count {
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 5px;
+        }
+        
+        .lead-stat.prospect .count { color: var(--prospect); }
+        .lead-stat.hot .count { color: var(--hot); }
+        .lead-stat.deal .count { color: var(--deal); }
+        
+        .lead-stat .label {
+            font-size: 12px;
+            color: var(--muted);
+            text-transform: uppercase;
+        }
+        
+        .leads-cards {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-bottom: 70px;
+        }
+        
+        .lead-card {
+            background: var(--panel);
+            border-radius: 10px;
+            padding: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.02);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .lead-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 10px;
+        }
+        
+        .lead-name {
+            font-weight: 700;
+            font-size: 16px;
+            margin: 0;
+        }
+        
+        .lead-status {
+            padding: 4px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .status-prospect { background: rgba(79, 195, 247, 0.15); color: var(--prospect); }
+        .status-hot { background: rgba(255, 123, 107, 0.15); color: var(--hot); }
+        .status-deal { background: rgba(110, 231, 183, 0.15); color: var(--deal); }
+        
+        .lead-details {
+            margin-bottom: 12px;
+        }
+        
+        .lead-detail {
+            display: flex;
+            align-items: center;
+            margin-bottom: 6px;
+            font-size: 13px;
+        }
+        
+        .lead-detail i {
+            width: 20px;
+            color: var(--muted);
+            margin-right: 8px;
+        }
+        
+        .lead-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 8px;
+        }
+        
+        .lead-action-btn {
+            flex: 1;
+            padding: 8px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            transition: all 0.2s ease;
+        }
+        
+        .btn-call {
+            background: rgba(79, 195, 247, 0.15);
+            color: var(--progress);
+        }
+        
+        .btn-call:hover {
+            background: rgba(79, 195, 247, 0.25);
+        }
+        
+        .btn-wa {
+            background: rgba(110, 231, 183, 0.15);
+            color: var(--complete);
+        }
+        
+        .btn-wa:hover {
+            background: rgba(110, 231, 183, 0.25);
+        }
+        
+        .btn-detail {
+            background: rgba(123, 97, 255, 0.15);
+            color: var(--neon);
+        }
+        
+        .btn-detail:hover {
+            background: rgba(123, 97, 255, 0.25);
+        }
+        
+        #leadModal .modal {
+            max-width: 600px;
+        }
+        
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+        }
+        
+        .detail-value {
+            padding: 8px 0;
+            color: #fff;
+            font-size: 14px;
+        }
+
+        @media (max-width: 900px) {
+            .panels {
+                grid-template-columns: 1fr;
+            }
+            
+            .wrap {
+                padding: 10px;
+            }
+            
+            .leads-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+            
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
+            }
+            
+            footer.control {
+                padding: 6px;
+                gap: 0;
+            }
+            
+            .stat {
+                padding: 10px;
+            }
+            
+            .bubble {
+                min-width: 36px;
+                height: 36px;
+                font-size: 14px;
+            }
+            
+            .stat-badge {
+                top: -5px;
+                right: -5px;
+                padding: 2px 5px;
+                font-size: 10px;
+                min-width: 18px;
+            }
+            
+            .notification {
+                left: 10px;
+                right: 10px;
+                max-width: none;
+                font-size: 14px;
+            }
+            
+            .modal {
+                padding: 12px;
+            }
+            
+            .modal .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+            
+            .profile {
+                max-width: 100%;
+                padding: 6px 10px;
+            }
+            
+            .goal {
+                padding: 8px 10px;
+            }
+            
+            .goal .text h4 {
+                font-size: 11px;
+            }
+            
+            .goal .actions input {
+                width: 150px;
+                min-width: 100px;
+            }
+            
+            .control .add {
+                width: 45px;
+                height: 45px;
+                font-size: 18px;
+            }
+            
+            header.header {
+                grid-template-columns: 1fr auto;
+                gap: 10px;
+            }
+            
+            .logo-container {
+                max-width: 140px;
+            }
+            
+            .profile {
+                max-width: fit-content;
+            }
+            
+            .leads-filter {
+                flex-direction: column;
+            }
+            
+            .leads-filter input,
+            .leads-filter select {
+                width: 100%;
+            }
+            
+            .leads-stats {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+            
+            .lead-stat {
+                padding: 10px;
+            }
+            
+            .lead-stat .count {
+                font-size: 20px;
+            }
+            
+            .lead-actions {
+                flex-direction: column;
+            }
+        }
+        
+        @media (max-width: 400px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .stat {
+                flex-direction: column;
+                text-align: center;
+                gap: 8px;
+                padding: 8px;
+            }
+            
+            .stat .left {
+                align-items: center;
+            }
+            
+            .profile {
+                flex-direction: row;
+                text-align: center;
+                padding: 6px 10px;
+                justify-content: center;
+                gap: 6px;
+            }
+
+            .profile .icon {
+                margin-left: 4px;
+            }
+            
+            .profile-info {
+                align-items: center;
+            }
+            
+            .goal {
+                flex-direction: row;
+                text-align: left;
+                gap: 8px;
+            }
+            
+            .goal .left {
+                flex-direction: row;
+                text-align: left;
+                gap: 8px;
+            }
+            
+            .goal .actions input {
+                width: 120px;
+                min-width: 80px;
+            }
+            
+            .logo-container {
+                max-width: 120px;
+            }
+            
+            header.header {
+                grid-template-columns: 1fr auto;
+                gap: 8px;
+            }
+            
+            .profile-info .name {
+                display: none; 
+            }
+            
+            .profile-info .role {
+                display: none; 
+            }
+            
+            .avatar {
+                width: 32px;
+                height: 32px;
+            }
+            
+            .leads-stats {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        ::-webkit-scrollbar {
+            width: 5px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+        
+        @keyframes taskComplete {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+        
+        .task-complete {
+            animation: taskComplete 0.5s ease;
+        }
+        
+        .connection-status {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            padding: 5px 10px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: bold;
+            z-index: 1000;
+            background: var(--not);
+            color: white;
+            display: none;
+        }
+        
+        .connection-status.online {
+            background: var(--complete);
+            display: block;
+        }
+        
+        .connection-status.offline {
+            background: var(--not);
+            display: block;
+        }
+        
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: #fff;
+            animation: spin 0.8s linear infinite;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+<div class="connection-status" id="connectionStatus"></div>
+<div class="wrap">
+<header class="header header-login">
+<div class="logo-container">
+<img alt="ASMO TUBAN Mission Control" id="logoImg" src="logo-atomic.png"/>
+</div>
+<div class="profile" id="profilePanel" style="display:none">
+<div class="avatar" id="avatarWrap">
+<img alt="Avatar" id="avatarImg" onerror="this.style.display='none';document.getElementById('avatarInitial').style.display='flex'" src="avatar-default.png"/>
+<div class="avatar-initial" id="avatarInitial" style="display:none">OP</div>
+</div>
+<div class="profile-info">
+<div class="name" id="profileName">NAMA LENGKAP</div>
+<div class="role" id="profileRole">ROLE</div>
+</div>
+<div class="icon" id="bellBtn" title="Go to oldest incomplete">
+<i class="fa-solid fa-tower-cell"></i>
+<div class="badge" id="notifBadge">0</div>
+</div>
+<div class="icon" id="recapBtn" title="Open monthly recap">
+<i class="fa-solid fa-chart-simple"></i>
+</div>
+</div>
+</header>
+<div class="login-card" id="loginCard">
+<h2>WELCOME TO ATOMIC</h2>
+<input id="inputName" placeholder="Agent Name (e.g : Sakti Ananda)" type="text"/>
+<select id="inputRole">
+<option value="">Select Role</option>
+<option>CASHIER</option>
+<option>CRM SUPPORT</option>
+<option>FRONT DESK</option>
+<option>MARKETING</option>
+<option>SALES ADMIN</option>
+<option>AFSO</option>
+<option>DELIVERY MAN</option>
+<option>MECHANIC</option>
+<option>OFFICE BOY</option>
+<option>PDI</option>
+<option>TEAM LEADER</option>
+<option>WORKSHOP HEAD</option>
+</select>
+<button id="btnLogin">ACCESS</button>
+</div>
+<div id="dashboard" style="display:none">
+<div class="tabs">
+<div class="tab active" id="tabMissions" onclick="switchTab('missions')">MISSIONS</div>
+<div class="tab" id="tabLeads" onclick="switchTab('leads')">LEADS</div>
+</div>
+<div id="missionsDashboard">
+<div class="stats-grid">
+<div class="stat">
+<div class="left">
+<small>Total Missions</small>
+</div>
+<div class="bubble total" id="bubbleTotal">
+<i class="fa-solid fa-earth-americas"></i>
+<div class="stat-badge total-badge" id="badgeTotal">0</div>
+</div>
+</div>
+<div class="stat">
+<div class="left">
+<small>Not Started</small>
+</div>
+<div class="bubble not" id="bubbleNot">
+<i class="fa-solid fa-triangle-exclamation"></i>
+<div class="stat-badge not-badge" id="badgeNot">0</div>
+</div>
+</div>
+<div class="stat">
+<div class="left">
+<small>In Progress</small>
+</div>
+<div class="bubble progress" id="bubbleProg">
+<i class="fas fa-hourglass-start"></i>
+<div class="stat-badge progress-badge" id="badgeProg">0</div>
+</div>
+</div>
+<div class="stat">
+<div class="left">
+<small>Completed</small>
+</div>
+<div class="bubble complete" id="bubbleComp">
+<i class="fas fa-check-circle"></i>
+<div class="stat-badge complete-badge" id="badgeComp">0</div>
+</div>
+</div>
+</div>
+<div class="goal">
+<div class="left">
+<div class="icon"><i class="fas fa-bullseye"></i></div>
+<div class="text">
+<small>TARGET / ACHIEVEMENT</small>
+<h4 id="goalText">ACHIEVE 150% SALES TARGET</h4>
+</div>
+</div>
+<div class="actions">
+<input id="goalInput" placeholder="Enter new goal" style="display:none"/>
+<button class="close-btn" id="btnEditGoal"><i class="fas fa-edit"></i></button>
+<button class="close-btn" id="btnSaveGoal" style="display:none"><i class="fas fa-save"></i></button>
+</div>
+</div>
+<div class="panels">
+<div class="panel" id="panelNot">
+<div class="header" onclick="togglePanel('Not')">
+<h5 style="color: var(--not)">Not Started</h5>
+<div class="count" id="countNot">0</div>
+</div>
+<div class="body" id="bodyNot"></div>
+</div>
+<div class="panel" id="panelProg">
+<div class="header" onclick="togglePanel('Prog')">
+<h5 style="color: var(--progress)">In Progress</h5>
+<div class="count" id="countProg">0</div>
+</div>
+<div class="body" id="bodyProg"></div>
+</div>
+<div class="panel" id="panelComp">
+<div class="header" onclick="togglePanel('Comp')">
+<h5 style="color: var(--complete)">Completed</h5>
+<div class="count" id="countComp">0</div>
+</div>
+<div class="body" id="bodyComp"></div>
+</div>
+</div>
+</div>
+<div class="leads-container" id="leadsDashboard">
+<div class="leads-filter">
+<input id="leadsSearch" onkeyup="filterLeads()" placeholder="Cari lead..." type="text"/>
+<select id="leadsStatusFilter" onchange="filterLeads()">
+<option value="">Semua Status</option>
+<option value="prospect">Prospect</option>
+<option value="hot">Hot</option>
+<option value="deal">Deal</option>
+</select>
+<select id="leadsSourceFilter" onchange="filterLeads()">
+<option value="">Semua Sumber</option>
+<option value="walk-in">Walk-in</option>
+<option value="referral">Referral</option>
+<option value="website">Website</option>
+<option value="social-media">Social Media</option>
+<option value="event">Event</option>
+</select>
+</div>
+<div class="leads-stats">
+<div class="lead-stat prospect">
+<div class="count" id="prospectCount">0</div>
+<div class="label">Prospect</div>
+</div>
+<div class="lead-stat hot">
+<div class="count" id="hotCount">0</div>
+<div class="label">Hot</div>
+</div>
+<div class="lead-stat deal">
+<div class="count" id="dealCount">0</div>
+<div class="label">Deal</div>
+</div>
+</div>
+<div class="leads-cards" id="leadsCards">
+</div>
+</div>
+</div>
+</div>
+<footer class="control" id="footerControl" style="display:none">
+<button class="add" id="openAddLead" style="background: var(--complete); display: none;" title="Add Lead"><i class="fas fa-user-plus"></i></button>
+<button class="add" id="openAdd" title="Add Mission"><i class="fa-solid fa-atom"></i></button>
+</footer>
+<div class="modal-backdrop" id="addModal" style="display:none">
+<div class="modal">
+<div class="header">
+<h4 id="modalTitle">Add Mission</h4>
+<button class="close-btn" onclick="closeAddModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="body">
+<label>Mission Title</label>
+<input id="inputTitle" placeholder="MISSION TITLE">
+<label>Mission Details</label>
+<textarea id="inputNotes" placeholder="Mission description and details" rows="3"></textarea>
+<div class="form-row">
+<div>
+<label>Start Date</label>
+<input id="inputStart" type="date"/>
+</div>
+<div>
+<label>Due Date</label>
+<input id="inputDue" type="date"/>
+</div>
+</div>
+<label>Priority</label>
+<select id="inputPriority">
+<option value="High">High</option>
+<option selected="" value="Normal">Normal</option>
+<option value="Low">Low</option>
+</select>
+<label>Status</label>
+<select id="inputStatus">
+<option value="not started">Not Started</option>
+<option value="in progress">In Progress</option>
+<option value="completed">Completed</option>
+</select>
+<div class="form-actions">
+<button class="cancel-btn" onclick="closeAddModal()">Cancel</button>
+<button class="save-btn" id="saveMissionBtn" onclick="saveMission()">Save Mission</button>
+</div>
+</input></div>
+</div>
+</div>
+<div class="modal-backdrop" id="leadModal" style="display:none">
+<div class="modal">
+<div class="header">
+<h4 id="leadModalTitle">Tambah Lead Baru</h4>
+<button class="close-btn" onclick="closeLeadModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="body">
+<div class="form-grid">
+<div>
+<label>Nama Konsumen</label>
+<input id="leadName" placeholder="Nama Lengkap"/>
+</div>
+<div>
+<label>Nomor Telepon</label>
+<input id="leadPhone" oninput="formatPhoneNumber(this)" placeholder="08xxxxxxxxxx"/>
+</div>
+<div>
+<label>Alamat</label>
+<textarea id="leadAddress" placeholder="Alamat Lengkap" rows="2"></textarea>
+</div>
+<div>
+<label>Email</label>
+<input id="leadEmail" placeholder="Alamat Email" type="email"/>
+</div>
+<div>
+<label>Unit yang Diminati</label>
+<input id="leadUnit" placeholder="Model/Unit yang Diminati"/>
+</div>
+<div>
+<label>Jenis Penjualan</label>
+<select id="leadSalesType">
+<option value="cash">Cash</option>
+<option value="credit">Credit</option>
+</select>
+</div>
+<div>
+<label>Status</label>
+<select id="leadStatus">
+<option value="prospect">Prospect</option>
+<option value="hot">Hot</option>
+<option value="deal">Deal</option>
+</select>
+</div>
+<div>
+<label>Sumber</label>
+<select id="leadSource">
+<option value="walk-in">Walk-in</option>
+<option value="referral">Referral</option>
+<option value="website">Website</option>
+<option value="social-media">Social Media</option>
+<option value="event">Event</option>
+<option value="other">Lainnya</option>
+</select>
+</div>
+</div>
+<label>Catatan</label>
+<textarea id="leadNotes" placeholder="Catatan tambahan tentang lead ini" rows="3"></textarea>
+<div class="form-actions">
+<button class="cancel-btn" onclick="closeLeadModal()">Batal</button>
+<button class="save-btn" id="saveLeadBtn" onclick="saveLead()">Simpan Lead</button>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-backdrop" id="leadDetailModal" style="display:none">
+<div class="modal">
+<div class="header">
+<h4>Detail Lead</h4>
+<button class="close-btn" onclick="closeLeadDetailModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="body">
+<div id="leadDetailContent"></div>
+<div class="form-actions">
+<button class="cancel-btn" onclick="closeLeadDetailModal()">Tutup</button>
+<button class="save-btn" onclick="deleteLead(currentLeadId)" style="background: var(--not);">Delete</button>
+<button class="save-btn" onclick="editLead(currentLeadId)">Edit Lead</button>
+</div>
+</div>
+</div>
+</div>
+<div class="modal-backdrop" id="recapModal" style="display:none">
+<div class="modal">
+<div class="header">
+<h4>Monthly Mission Dashboard</h4>
+<button class="close-btn" onclick="closeRecapModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="body">
+<div class="chart-container">
+<canvas id="recapChart"></canvas>
+</div>
+<div id="recapChartMessage" style="margin-top:12px;color:var(--muted);font-size:12px;text-align:center">
+                Mission completion trend based on input date.
+            </div>
+</div>
+</div>
+</div>
+<div class="modal-backdrop" id="taskModal" style="display:none">
+<div class="modal">
+<div class="header">
+<h4 id="taskModalTitle">Mission Details</h4>
+<button class="close-btn" onclick="closeTaskModal()"><i class="fas fa-times"></i></button>
+</div>
+<div class="body">
+<div id="taskModalContent"></div>
+<div class="form-actions">
+<button class="cancel-btn" onclick="closeTaskModal()">Close</button>
+<button class="save-btn" id="taskModalEditBtn">Edit Mission</button>
+</div>
+</div>
+</div>
+</div>
+<script>
+// ============================
+// APP CONFIGURATION
+// ============================
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbzXhSrRJkPAWNCc42PoC03rk0sxZ9VQgVxqkB3GJvCzM5CKHI1aglALqa15r5aNilLl/exec';
+
+// Initial Data
+let tasks = [];
+let leads = [];
+let currentLeadId = null;
+let editingLeadId = null;
+
+// Global Variables
+let editingId = null;
+let dueDateChecker = null;
+let recapChart = null;
+let syncInterval = null;
+let isSaving = false;
+
+// ============================
+// PHONE NUMBER FORMATTING
+// ============================
+// ============================
+// FUNGSI FORMAT NOMOR TELEPON INDONESIA (DIPERBAIKI)
+// ============================
+function formatPhoneNumber(input) {
+    // Ambil nilai input dan hapus semua karakter selain digit
+    let value = input.value.replace(/\D/g, '');
+
+    // Jika pengguna menempelkan nomor yang diawali '62', ubah menjadi '0' untuk konsistensi tampilan
+    if (value.startsWith('62')) {
+        value = '0' + value.substring(2);
+    }
+    
+    // Batasi panjang maksimal nomor (misal 13 digit)
+    if (value.length > 13) {
+        value = value.substring(0, 13);
+    }
+
+    // Terapkan format dengan strip pemisah
+    let formattedValue = value;
+    if (value.length > 4 && value.length <= 8) {
+        // Format: 0812-xxxx
+        formattedValue = value.substring(0, 4) + '-' + value.substring(4);
+    } else if (value.length > 8) {
+        // Format: 0812-xxxx-xxxx
+        formattedValue = value.substring(0, 4) + '-' + value.substring(4, 8) + '-' + value.substring(8);
+    }
+
+    // Perbarui nilai di kolom input
+    input.value = formattedValue;
+}
+
+function getInternationalPhone(phone) {
+    let numbers = phone.replace(/\D/g, '');
+    if (numbers.startsWith('0')) {
+        numbers = '62' + numbers.substring(1);
+    }
+    if (!numbers.startsWith('62')) {
+        numbers = '62' + numbers;
+    }
+    return numbers;
+}
+
+// ============================
+// DATA SYNC FUNCTIONS
+// ============================
+async function syncTasksFromServer() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('atomic_user') || '{}');
+        if (!userData.name) return;
+        
+        console.log('Fetching tasks from server...');
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=getTasks&employee=${encodeURIComponent(userData.name)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const serverTasks = await response.json();
+        
+        if (serverTasks) {
+            tasks = serverTasks;
+            localStorage.setItem('atomic_tasks', JSON.stringify(tasks));
+            renderAll();
+            console.log('Tasks synced from server.', tasks);
+        }
+    } catch (error) {
+        console.error('Error syncing tasks:', error);
+        showNotification('Could not sync tasks.', 'error');
+    }
+}
+
+// NEW: Function to sync leads from server
+async function syncLeadsFromServer() {
+    try {
+        const userData = JSON.parse(localStorage.getItem('atomic_user') || '{}');
+        if (!userData.name) return;
+
+        console.log('Fetching leads from server...');
+        const response = await fetch(`${APPS_SCRIPT_URL}?action=getLeads&employee=${encodeURIComponent(userData.name)}`);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+        
+        const serverLeads = await response.json();
+
+        if (serverLeads) {
+            leads = serverLeads;
+            localStorage.setItem('atomic_leads', JSON.stringify(leads));
+            renderLeadsCards(); // Render only the leads part
+            console.log('Leads synced from server.', leads);
+        }
+    } catch (error) {
+        console.error('Error syncing leads:', error);
+        showNotification('Could not sync leads.', 'error');
+    }
+}
+
+
+// ============================
+// GOOGLE SHEETS INTEGRATION
+// ============================
+async function saveToGoogleSheets(data, action) {
+    try {
+        const userData = JSON.parse(localStorage.getItem('atomic_user') || '{}');
+        data.employee = userData.name || 'Unknown';
+        data.Role = userData.role || 'Unknown';
+        data.action = action;
+
+        console.log(`Sending ${action} request to Google Sheets:`, data);
+
+        await fetch(APPS_SCRIPT_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: new URLSearchParams(data).toString(),
+        });
+    } catch (error) {
+        console.error(`Error saving ${action} to Google Sheets:`, error);
+    }
+}
+
+// ============================
+// GOAL MANAGEMENT
+// ============================
+function loadGoal() {
+    const savedGoal = localStorage.getItem('atomic_monthly_goal');
+    document.getElementById('goalText').textContent = savedGoal || 'KPI ACCOUNTING 100%';
+}
+
+function saveGoal(newGoal) {
+    localStorage.setItem('atomic_monthly_goal', newGoal);
+    document.getElementById('goalText').textContent = newGoal;
+    showNotification('Monthly goal updated!', 'success');
+}
+
+// ============================
+// LEAD MANAGEMENT FUNCTIONS
+// ============================
+function switchTab(tab) {
+    if (tab === 'missions') {
+        document.getElementById('tabMissions').classList.add('active');
+        document.getElementById('tabLeads').classList.remove('active');
+        document.getElementById('missionsDashboard').style.display = 'block';
+        document.getElementById('leadsDashboard').style.display = 'none';
+        document.getElementById('openAdd').style.display = 'block';
+        document.getElementById('openAddLead').style.display = 'none';
+    } else {
+        document.getElementById('tabMissions').classList.remove('active');
+        document.getElementById('tabLeads').classList.add('active');
+        document.getElementById('missionsDashboard').style.display = 'none';
+        document.getElementById('leadsDashboard').style.display = 'block';
+        document.getElementById('openAdd').style.display = 'none';
+        document.getElementById('openAddLead').style.display = 'block';
+        renderLeadsCards();
+    }
+}
+
+function openAddLeadModal() {
+    editingLeadId = null;
+    document.getElementById('leadModalTitle').textContent = 'Tambah Lead Baru';
+    document.getElementById('leadName').value = '';
+    document.getElementById('leadPhone').value = '';
+    document.getElementById('leadAddress').value = '';
+    document.getElementById('leadEmail').value = '';
+    document.getElementById('leadUnit').value = '';
+    document.getElementById('leadSalesType').value = 'cash';
+    document.getElementById('leadStatus').value = 'prospect';
+    document.getElementById('leadSource').value = 'walk-in';
+    document.getElementById('leadNotes').value = '';
+    document.getElementById('leadModal').style.display = 'flex';
+}
+
+function closeLeadModal() {
+    document.getElementById('leadModal').style.display = 'none';
+    editingLeadId = null;
+}
+
+// MODIFIED: saveLead now syncs with Google Sheets
+function saveLead() {
+    const name = document.getElementById('leadName').value.trim();
+    const phone = document.getElementById('leadPhone').value.trim();
+    if (!name || !phone) {
+        showNotification('Nama and nomor telepon are required', 'error');
+        return;
+    }
+
+    let leadData;
+    let action;
+
+    if (editingLeadId) {
+        const index = leads.findIndex(l => l.id === editingLeadId);
+        if (index !== -1) {
+            leads[index] = {
+                ...leads[index],
+                name: name,
+                phone: phone,
+                address: document.getElementById('leadAddress').value.trim(),
+                email: document.getElementById('leadEmail').value.trim(),
+                unit: document.getElementById('leadUnit').value.trim(),
+                salesType: document.getElementById('leadSalesType').value,
+                status: document.getElementById('leadStatus').value,
+                source: document.getElementById('leadSource').value,
+                notes: document.getElementById('leadNotes').value.trim(),
+                updatedAt: new Date().toISOString()
+            };
+            leadData = leads[index];
+            action = 'updateLead';
+        }
+    } else {
+        const newLead = {
+            id: Date.now() + Math.floor(Math.random() * 1000),
+            name: name,
+            phone: phone,
+            address: document.getElementById('leadAddress').value.trim(),
+            email: document.getElementById('leadEmail').value.trim(),
+            unit: document.getElementById('leadUnit').value.trim(),
+            salesType: document.getElementById('leadSalesType').value,
+            status: document.getElementById('leadStatus').value,
+            source: document.getElementById('leadSource').value,
+            notes: document.getElementById('leadNotes').value.trim(),
+            createdAt: new Date().toISOString(),
+            updatedAt: new Date().toISOString()
+        };
+        leads.push(newLead);
+        leadData = newLead;
+        action = 'addLead';
+    }
+
+    localStorage.setItem('atomic_leads', JSON.stringify(leads));
+    
+    // Sync to Google Sheet
+    const sheetData = { ...leadData, leadId: leadData.id }; // Match GS header
+    delete sheetData.id; // remove local 'id' field if it exists to avoid confusion
+    saveToGoogleSheets(sheetData, action).catch(e => console.error(e));
+
+    closeLeadModal();
+    renderLeadsCards();
+    showNotification(editingLeadId ? 'Lead updated successfully!' : 'Lead added successfully!', 'success');
+}
+
+// NEW: Function to delete a lead
+async function deleteLead(id) {
+    if (!confirm('Are you sure you want to delete this lead? This action cannot be undone.')) return;
+    
+    const leadToDelete = leads.find(l => l.id === id);
+    if (!leadToDelete) return;
+    
+    // Remove locally
+    leads = leads.filter(l => l.id !== id);
+    localStorage.setItem('atomic_leads', JSON.stringify(leads));
+
+    // Send delete request to backend
+    await saveToGoogleSheets({ leadId: id }, 'deleteLead');
+    
+    closeLeadDetailModal();
+    renderLeadsCards();
+    showNotification('Lead deleted successfully!', 'success');
+}
+
+
+function renderLeadsCards() {
+    const cardsContainer = document.getElementById('leadsCards');
+    cardsContainer.innerHTML = '';
+    
+    const searchTerm = document.getElementById('leadsSearch').value.toLowerCase();
+    const statusFilter = document.getElementById('leadsStatusFilter').value;
+    const sourceFilter = document.getElementById('leadsSourceFilter').value;
+    
+    const filteredLeads = leads.filter(lead => {
+        const leadName = lead.name || '';
+        const leadPhone = lead.phone || '';
+        const leadEmail = lead.email || '';
+        const leadUnit = lead.unit || '';
+        
+        const matchesSearch = 
+            leadName.toLowerCase().includes(searchTerm) ||
+            leadPhone.toLowerCase().includes(searchTerm) ||
+            leadEmail.toLowerCase().includes(searchTerm) ||
+            leadUnit.toLowerCase().includes(searchTerm);
+        
+        const matchesStatus = statusFilter ? lead.status === statusFilter : true;
+        const matchesSource = sourceFilter ? lead.source === sourceFilter : true;
+        
+        return matchesSearch && matchesStatus && matchesSource;
+    }).sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt));
+
+    if (filteredLeads.length === 0) {
+        cardsContainer.innerHTML = '<div style="color:var(--muted);padding:20px;text-align:center;font-size:12px">No leads found</div>';
+    } else {
+        filteredLeads.forEach(lead => {
+            const card = document.createElement('div');
+            card.className = 'lead-card';
+            let statusClass = `status-${lead.status}`;
+            
+            card.innerHTML = `
+                <div class="lead-card-header">
+                    <h3 class="lead-name">${lead.name}</h3>
+                    <span class="lead-status ${statusClass}">${lead.status}</span>
+                </div>
+                <div class="lead-details">
+                    <div class="lead-detail"><i class="fas fa-phone"></i><span>${lead.phone}</span></div>
+                    ${lead.email ? `<div class="lead-detail"><i class="fas fa-envelope"></i><span>${lead.email}</span></div>` : ''}
+                    ${lead.unit ? `<div class="lead-detail"><i class="fas fa-car"></i><span>${lead.unit}</span></div>` : ''}
+                    <div class="lead-detail"><i class="fas fa-tag"></i><span>${lead.salesType} • ${formatSource(lead.source)}</span></div>
+                </div>
+                <div class="lead-actions">
+                    <button class="lead-action-btn btn-call" onclick="callLead('${lead.phone}')"><i class="fas fa-phone"></i> Call</button>
+                    <button class="lead-action-btn btn-wa" onclick="whatsappLead('${lead.phone}')"><i class="fab fa-whatsapp"></i> WhatsApp</button>
+                    <button class="lead-action-btn btn-detail" onclick="viewLead(${lead.id})"><i class="fas fa-eye"></i> Detail</button>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+        });
+    }
+    updateLeadsStats();
+}
+
+function updateLeadsStats() {
+    document.getElementById('prospectCount').textContent = leads.filter(l => l.status === 'prospect').length;
+    document.getElementById('hotCount').textContent = leads.filter(l => l.status === 'hot').length;
+    document.getElementById('dealCount').textContent = leads.filter(l => l.status === 'deal').length;
+}
+
+function formatSource(source) {
+    return (source || '').replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase());
+}
+
+function viewLead(id) {
+    const lead = leads.find(l => l.id === id);
+    if (!lead) return;
+    
+    currentLeadId = id;
+    
+    const detailContent = document.getElementById('leadDetailContent');
+    let statusClass = `status-${lead.status}`;
+    
+    detailContent.innerHTML = `
+        <div class="form-grid">
+            <div><label>Nama</label><div class="detail-value">${lead.name}</div></div>
+            <div><label>Status</label><div class="detail-value"><span class="lead-status ${statusClass}">${lead.status}</span></div></div>
+            <div><label>Phone</label><div class="detail-value">${lead.phone}</div></div>
+            <div><label>Email</label><div class="detail-value">${lead.email || '-'}</div></div>
+            <div><label>Sales Type</label><div class="detail-value">${lead.salesType}</div></div>
+            <div><label>Unit</label><div class="detail-value">${lead.unit || '-'}</div></div>
+            <div><label>Source</label><div class="detail-value">${formatSource(lead.source)}</div></div>
+            <div><label>Created</label><div class="detail-value">${formatFullDate(lead.createdAt)}</div></div>
+        </div>
+        <label>Address</label><div class="detail-value">${lead.address || '-'}</div>
+        <label>Notes</label><div class="detail-value">${lead.notes || '-'}</div>
+    `;
+    document.getElementById('leadDetailModal').style.display = 'flex';
+}
+
+function closeLeadDetailModal() {
+    document.getElementById('leadDetailModal').style.display = 'none';
+    currentLeadId = null;
+}
+
+function editLead(id) {
+    const lead = leads.find(l => l.id === id);
+    if (!lead) return;
+    
+    editingLeadId = id;
+    document.getElementById('leadModalTitle').textContent = 'Edit Lead';
+    document.getElementById('leadName').value = lead.name;
+    document.getElementById('leadPhone').value = lead.phone;
+    document.getElementById('leadAddress').value = lead.address || '';
+    document.getElementById('leadEmail').value = lead.email || '';
+    document.getElementById('leadUnit').value = lead.unit || '';
+    document.getElementById('leadSalesType').value = lead.salesType;
+    document.getElementById('leadStatus').value = lead.status;
+    document.getElementById('leadSource').value = lead.source;
+    document.getElementById('leadNotes').value = lead.notes || '';
+    
+    closeLeadDetailModal();
+    document.getElementById('leadModal').style.display = 'flex';
+}
+
+function callLead(phone) { window.open('tel:' + getInternationalPhone(phone), '_self'); }
+function whatsappLead(phone) { window.open('https://wa.me/' + getInternationalPhone(phone), '_blank'); }
+function filterLeads() { renderLeadsCards(); }
+
+// ============================
+// APP INITIALIZATION
+// ============================
+document.addEventListener('DOMContentLoaded', function() {
+    const userData = JSON.parse(localStorage.getItem('atomic_user') || 'null');
+    if (userData && userData.name) {
+        doLogin(userData.name, userData.role, false);
+    }
+
+    tasks = JSON.parse(localStorage.getItem('atomic_tasks') || '[]');
+    leads = JSON.parse(localStorage.getItem('atomic_leads') || '[]');
+    loadGoal();
+    renderAll();
+    
+    if ('Notification' in window) Notification.requestPermission();
+    
+    checkDueDates();
+    dueDateChecker = setInterval(checkDueDates, 3600000); 
+    setupEventListeners();
+    
+    const updateConnectionStatus = () => {
+        const statusEl = document.getElementById('connectionStatus');
+        if (navigator.onLine) {
+            statusEl.textContent = 'Online';
+            statusEl.className = 'connection-status online';
+            syncTasksFromServer();
+            syncLeadsFromServer(); // Sync leads on reconnect
+        } else {
+            statusEl.textContent = 'Offline';
+            statusEl.className = 'connection-status offline';
+        }
+        setTimeout(() => { statusEl.style.display = 'none'; }, 3000);
+        statusEl.style.display = 'block';
+    };
+    
+    window.addEventListener('online', updateConnectionStatus);
+    window.addEventListener('offline', updateConnectionStatus);
+    updateConnectionStatus();
+});
+
+
+// ============================
+// CHART (RECAP) FUNCTIONS
+// ============================
+function openRecapModal() {
+    buildRecapChart();
+    document.getElementById('recapModal').style.display = 'flex';
+}
+
+function closeRecapModal() {
+    document.getElementById('recapModal').style.display = 'none';
+    if (recapChart) {
+        recapChart.destroy();
+        recapChart = null;
+    }
+}
+
+function buildRecapChart() {
+    const ctx = document.getElementById('recapChart').getContext('2d');
+    if (recapChart) recapChart.destroy();
+
+    const monthlyData = tasks.reduce((acc, task) => {
+        if (!task.date) return acc;
+        const month = task.date.substring(0, 7);
+        if (!acc[month]) acc[month] = { total: 0, completed: 0 };
+        acc[month].total++;
+        if (task.status === 'completed') acc[month].completed++;
+        return acc;
+    }, {});
+
+    const sortedMonths = Object.keys(monthlyData).sort();
+    const labels = sortedMonths.map(m => new Date(m + '-02').toLocaleDateString('en-US', { month: 'short', year: 'numeric' }));
+    
+    recapChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: labels,
+            datasets: [
+                {
+                    label: 'Completed',
+                    data: sortedMonths.map(m => monthlyData[m].completed),
+                    backgroundColor: 'rgba(110, 231, 183, 0.8)',
+                },
+                {
+                    label: 'Total',
+                    data: sortedMonths.map(m => monthlyData[m].total),
+                    backgroundColor: 'rgba(123, 97, 255, 0.6)',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#e6f3ff' } } },
+            scales: {
+                y: { beginAtZero: true, ticks: { color: '#9fb7d9', precision: 0 }, grid: { color: 'rgba(159, 183, 217, 0.1)' } },
+                x: { ticks: { color: '#9fb7d9' }, grid: { color: 'rgba(159, 183, 217, 0.1)' } }
+            }
+        }
+    });
+}
+
+
+// ============================
+// NOTIFICATION FUNCTIONS
+// ============================
+function checkDueDates() {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    tasks.forEach(task => {
+        if (task.status !== 'completed' && task.due) {
+            const dueDate = new Date(task.due);
+            const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+            if (diffDays <= 3) {
+                const alertKey = `dueAlert_${task.id}_${today.toDateString()}`;
+                if (!localStorage.getItem(alertKey)) {
+                    const message = diffDays <= 0 ? `Mission "${task.title}" is overdue!` : `Mission "${task.title}" is due in ${diffDays} days.`;
+                    showNotification(message, 'warning');
+                    localStorage.setItem(alertKey, 'shown');
+                }
+            }
+        }
+    });
+}
+
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.className = `notification ${type}`;
+    notification.innerHTML = `<span>${message}</span><button class="notification-close" onclick="this.parentElement.remove()">&times;</button>`;
+    document.body.appendChild(notification);
+    setTimeout(() => notification.remove(), 5000);
+}
+
+// ============================
+// RENDER & DATA MANAGEMENT
+// ============================
+function renderAll() {
+    renderTaskLists();
+    updateStats();
+    updateNotificationBadge();
+}
+
+function renderTaskLists() {
+    const bodies = {
+        'Not': document.getElementById('bodyNot'),
+        'Prog': document.getElementById('bodyProg'),
+        'Comp': document.getElementById('bodyComp')
+    };
+    Object.values(bodies).forEach(b => b.innerHTML = '');
+
+    const categorized = tasks.reduce((acc, t) => {
+        if (t.status === 'not started') acc.not.push(t);
+        else if (t.status === 'in progress') acc.prog.push(t);
+        else acc.comp.push(t);
+        return acc;
+    }, { not: [], prog: [], comp: [] });
+    
+    categorized.not.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => bodies.Not.appendChild(createTaskElement(t)));
+    categorized.prog.sort((a,b) => new Date(a.date) - new Date(b.date)).forEach(t => bodies.Prog.appendChild(createTaskElement(t)));
+    categorized.comp.sort((a,b) => new Date(b.date) - new Date(a.date)).forEach(t => bodies.Comp.appendChild(createTaskElement(t)));
+
+    document.getElementById('countNot').textContent = categorized.not.length;
+    document.getElementById('countProg').textContent = categorized.prog.length;
+    document.getElementById('countComp').textContent = categorized.comp.length;
+}
+
+function createTaskElement(task) {
+    const el = document.createElement('div');
+    el.className = `task ${task.status.replace(' ', '-')}`;
+    el.innerHTML = `
+        <div class="title" onclick="showTaskDetails(${task.id})">${escapeHtml(task.title)}</div>
+        <div class="notes">${escapeHtml(task.notes)}</div>
+        <div class="meta">
+            <div>
+                <div style="font-size:11px;color:var(--muted)">Start: ${formatDate(task.date)}</div>
+                <div style="font-size:10px;color:var(--muted)">Due: ${formatDate(task.due)}</div>
+            </div>
+            <div style="text-align:right">
+                <div class="pill ${task.status.replace(' ', '-')}">${task.status.toUpperCase()}</div>
+                <div style="margin-top:6px" class="task-actions">
+                    <button onclick="startEditTask(${task.id})"><i class="fas fa-edit"></i></button>
+                    <button onclick="deleteTask(${task.id})"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>
+    `;
+    return el;
+}
+
+function updateStats() {
+    document.getElementById('badgeTotal').textContent = tasks.length;
+    document.getElementById('badgeNot').textContent = tasks.filter(t => t.status === 'not started').length;
+    document.getElementById('badgeProg').textContent = tasks.filter(t => t.status === 'in progress').length;
+    document.getElementById('badgeComp').textContent = tasks.filter(t => t.status === 'completed').length;
+}
+
+function updateNotificationBadge() {
+    const incompleteCount = tasks.filter(t => t.status !== 'completed').length;
+    const badge = document.getElementById('notifBadge');
+    badge.textContent = incompleteCount;
+    badge.style.display = incompleteCount > 0 ? 'block' : 'none';
+}
+
+// ============================
+// TASK MANAGEMENT
+// ============================
+async function saveMission() {
+    const title = document.getElementById('inputTitle').value.trim().toUpperCase();
+    if (!title) {
+        showNotification('Mission title is required', 'error');
+        return;
+    }
+
+    let taskData;
+    let action;
+
+    if (editingId) {
+        const index = tasks.findIndex(t => t.id === editingId);
+        if (index !== -1) {
+            tasks[index] = { ...tasks[index], title, notes: document.getElementById('inputNotes').value.trim().toUpperCase(), date: document.getElementById('inputStart').value, due: document.getElementById('inputDue').value, priority: document.getElementById('inputPriority').value, status: document.getElementById('inputStatus').value };
+            taskData = tasks[index];
+            action = 'update';
+        }
+    } else {
+        const newTask = { id: Date.now(), title, notes: document.getElementById('inputNotes').value.trim().toUpperCase(), date: document.getElementById('inputStart').value, due: document.getElementById('inputDue').value, priority: document.getElementById('inputPriority').value, status: document.getElementById('inputStatus').value };
+        tasks.push(newTask);
+        taskData = newTask;
+        action = 'add';
+    }
+
+    localStorage.setItem('atomic_tasks', JSON.stringify(tasks));
+
+    const sheetData = { ...taskData, taskId: taskData.id, task: taskData.title, dueDate: taskData.due };
+    delete sheetData.id; delete sheetData.title; delete sheetData.due;
+    saveToGoogleSheets(sheetData, action).catch(e => console.error('Error saving mission to sheet:', e));
+
+    closeAddModal();
+    renderAll();
+    showNotification(`Mission ${action === 'add' ? 'added' : 'updated'}!`, 'success');
+}
+
+function startEditTask(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    editingId = id;
+    document.getElementById('modalTitle').textContent = 'Edit Mission';
+    document.getElementById('inputTitle').value = task.title;
+    document.getElementById('inputNotes').value = task.notes;
+    document.getElementById('inputStart').value = task.date;
+    document.getElementById('inputDue').value = task.due;
+    document.getElementById('inputPriority').value = task.priority || 'Normal';
+    document.getElementById('inputStatus').value = task.status;
+    document.getElementById('addModal').style.display = 'flex';
+}
+
+async function deleteTask(id) {
+    if (!confirm('Are you sure?')) return;
+    const taskToDelete = tasks.find(t => t.id === id);
+    tasks = tasks.filter(t => t.id !== id);
+    localStorage.setItem('atomic_tasks', JSON.stringify(tasks));
+    await saveToGoogleSheets({ taskId: id }, 'delete');
+    renderAll();
+    showNotification('Mission deleted!', 'success');
+}
+
+function showTaskDetails(id) {
+    const task = tasks.find(t => t.id === id);
+    if (!task) return;
+    document.getElementById('taskModalTitle').textContent = task.title;
+    document.getElementById('taskModalContent').innerHTML = `
+        <p><strong>Description:</strong> ${escapeHtml(task.notes)}</p>
+        <p><strong>Dates:</strong> ${formatDate(task.date)} to ${formatDate(task.due)}</p>
+        <p><strong>Priority:</strong> ${task.priority || 'Normal'}</p>
+        <p><strong>Status:</strong> <span class="pill ${task.status.replace(' ', '-')}">${task.status.toUpperCase()}</span></p>
+    `;
+    document.getElementById('taskModalEditBtn').onclick = () => { closeTaskModal(); startEditTask(id); };
+    document.getElementById('taskModal').style.display = 'flex';
+}
+
+// ============================
+// UTILITY & EVENT LISTENERS
+// ============================
+function escapeHtml(text) { return text ? text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;") : ''; }
+function formatDate(d) { return d ? new Date(d).toLocaleDateString('en-CA') : 'N/A'; }
+function formatFullDate(d) { return d ? new Date(d).toLocaleString('id-ID') : 'N/A'; }
+
+function setupEventListeners() {
+    document.getElementById('btnLogin').addEventListener('click', () => {
+        const name = document.getElementById('inputName').value.trim();
+        const role = document.getElementById('inputRole').value;
+        if (name && role) doLogin(name, role, true);
+        else showNotification('Name and role are required', 'error');
+    });
+
+    document.getElementById('openAdd').addEventListener('click', () => {
+        editingId = null;
+        document.getElementById('modalTitle').textContent = 'Add Mission';
+        document.getElementById('inputTitle').value = '';
+        document.getElementById('inputNotes').value = '';
+        document.getElementById('inputStart').valueAsDate = new Date();
+        const dueDate = new Date(); dueDate.setDate(dueDate.getDate() + 3);
+        document.getElementById('inputDue').valueAsDate = dueDate;
+        document.getElementById('inputPriority').value = 'Normal';
+        document.getElementById('inputStatus').value = 'not started';
+        document.getElementById('addModal').style.display = 'flex';
+    });
+
+    document.getElementById('openAddLead').addEventListener('click', openAddLeadModal);
+    document.getElementById('recapBtn').addEventListener('click', openRecapModal);
+
+    document.getElementById('btnEditGoal').addEventListener('click', () => {
+        document.getElementById('goalInput').style.display = 'inline-block';
+        document.getElementById('goalText').style.display = 'none';
+        document.getElementById('btnEditGoal').style.display = 'none';
+        document.getElementById('btnSaveGoal').style.display = 'inline-block';
+        document.getElementById('goalInput').value = document.getElementById('goalText').textContent;
+        document.getElementById('goalInput').focus();
+    });
+
+    document.getElementById('btnSaveGoal').addEventListener('click', () => {
+        const newGoal = document.getElementById('goalInput').value.trim().toUpperCase();
+        if(newGoal) saveGoal(newGoal);
+        document.getElementById('goalInput').style.display = 'none';
+        document.getElementById('goalText').style.display = 'block';
+        document.getElementById('btnEditGoal').style.display = 'inline-block';
+        document.getElementById('btnSaveGoal').style.display = 'none';
+    });
+    
+    document.getElementById('bellBtn').addEventListener('click', () => {
+        const oldestIncomplete = tasks.filter(t => t.status !== 'completed').sort((a,b) => new Date(a.date) - new Date(b.date))[0];
+        if (oldestIncomplete) showTaskDetails(oldestIncomplete.id);
+        else showNotification('All missions completed!', 'success');
+    });
+}
+
+function doLogin(name, role, save) {
+    const upperName = name.toUpperCase();
+    document.getElementById('profileName').textContent = upperName;
+    document.getElementById('profileRole').textContent = role;
+    document.getElementById('avatarInitial').textContent = upperName.split(' ').map(n => n[0]).join('').slice(0, 2);
+    
+    document.getElementById('profilePanel').style.display = 'flex';
+    document.getElementById('loginCard').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    document.getElementById('footerControl').style.display = 'flex';
+    document.querySelector('header.header').classList.remove('header-login');
+    
+    if (save) localStorage.setItem('atomic_user', JSON.stringify({ name: upperName, role }));
+    
+    // Sync all data
+    syncTasksFromServer();
+    syncLeadsFromServer();
+    
+    if (syncInterval) clearInterval(syncInterval);
+    syncInterval = setInterval(() => {
+        syncTasksFromServer();
+        syncLeadsFromServer();
+    }, 2 * 60 * 1000); // Sync every 2 minutes
+    
+    showNotification(`Welcome, ${upperName}!`, 'success');
+}
+
+function togglePanel(panel) {
+    const body = document.getElementById(`body${panel}`);
+    body.style.display = body.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeAddModal() { document.getElementById('addModal').style.display = 'none'; editingId = null; }
+function closeTaskModal() { document.getElementById('taskModal').style.display = 'none'; }
+
+window.addEventListener('beforeunload', () => {
+    if (dueDateChecker) clearInterval(dueDateChecker);
+    if (syncInterval) clearInterval(syncInterval);
+});
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const observer = new MutationObserver(() => {
+        const completedTasks = tasks.filter(t => t.status === 'Completed');
+        if (completedTasks.length > 0) {
+            completedTasks.forEach(task => {
+                saveToGoogleSheets(task, 'update');
+            });
+        }
+    });
+    const targetNode = document.getElementById('task-list');
+    if (targetNode) {
+        observer.observe(targetNode, { childList: true, subtree: true });
+    }
+});
+</script>
+</body>
+</html>
